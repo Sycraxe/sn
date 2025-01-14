@@ -30,8 +30,7 @@
 enum direction {UP, DOWN, LEFT, RIGHT, NONE};
 
 bool IsBorder(int x, int y);
-bool IsOnSnake(int x, int y, std::vector<std::pair<int, int>> *snake);
-bool IsOnSnakeExceptHead(int x, int y, std::vector<std::pair<int, int>> *snake);
+bool IsOnSnake(std::vector<std::pair<int, int>> *snake, int x, int y, int start = 0, int end = -1);
 void RandomizeApple(std::pair<int, int> *apple, std::vector<std::pair<int, int>> *snake);
 
 int main() {
@@ -55,7 +54,7 @@ int main() {
 
     while (!WindowShouldClose() 
         && !IsBorder(snake[0].first, snake[0].second) 
-        && !IsOnSnakeExceptHead(snake[0].first, snake[0].second, &snake)) {
+        && !IsOnSnake(&snake, snake[0].first, snake[0].second, 1)) {
 
         if (IsKeyPressed(GO_UP) && direction != DOWN) {
             direction = UP;
@@ -97,6 +96,9 @@ int main() {
             case RIGHT:
                 snake[0].first += 1;
                 break;
+
+            default:
+                break;
         }
 
         if (snake[0].first == apple.first && snake[0].second == apple.second) {
@@ -132,13 +134,9 @@ bool IsBorder(int x, int y) {
     return (x == 0 || y == 0 || x == WIDTH - 1 || y == HEIGHT - 1);
 }
 
-bool IsOnSnake(int x, int y, std::vector<std::pair<int, int>> *snake) {
-    return IsOnSnakeExceptHead(x, y, snake) || (snake->at(0).first == x && snake->at(0).second == y);
-}
-
-bool IsOnSnakeExceptHead(int x, int y, std::vector<std::pair<int, int>> *snake) {
+bool IsOnSnake(std::vector<std::pair<int, int>> *snake, int x, int y, int start, int end) {
     bool test = false;
-    for (int i = 1; i < snake->size() && !test; i++) {
+    for (int i = start; i <= (end < 0 ? int(snake->size()) + end : end) && !test; i++) {
         test = snake->at(i).first == x && snake->at(i).second == y;
     }
     return test;
@@ -148,5 +146,5 @@ void RandomizeApple(std::pair<int, int> *apple, std::vector<std::pair<int, int>>
     do {
         apple->first = GetRandomValue(0, WIDTH - 1);
         apple->second = GetRandomValue(0, HEIGHT - 1);
-    } while (IsBorder(apple->first, apple->second) || IsOnSnake(apple->first, apple->second, snake));
+    } while (IsBorder(apple->first, apple->second) || IsOnSnake(snake, apple->first, apple->second));
 }
